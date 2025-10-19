@@ -245,6 +245,8 @@ Edit the `get_remedies()` method in `enhanced_model.py` to add:
 - **Risk Assessment**: Predictive analytics for ulcer development
 
 ## 🤝 Contributing
+1. Nikhil Gupta
+2. Aakriti Musaddi
 
 ### Development Setup
 1. Fork the repository
@@ -270,9 +272,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **Community**: Join our discussion forum
 
 ### Contact Information
-- **Project Maintainer**: [Your Name]
-- **Email**: [your.email@example.com]
-- **GitHub**: [your-github-username]
+- **Project Maintainer**: Vivek Jaiswal
+- **Email**: jaiswalvivek421@gmail.com
+- **GitHub**: @vivekjais03
 
 ---
 
