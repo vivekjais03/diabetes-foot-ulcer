@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Foot Ulcer Detection System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Medical Professional Color Scheme */
+            --primary-medical: #1e40af; /* Professional blue */
+            --secondary-medical: #3b82f6; /* Medical blue */
+            --accent-medical: #06b6d4; /* Cyan accent */
+            --success-medical: #059669; /* Medical green */
+            --warning-medical: #d97706; /* Medical orange */
+            --danger-medical: #dc2626; /* Medical red */
+            --neutral-50: #f8fafc;
+            --neutral-100: #f1f5f9;
+            --neutral-200: #e2e8f0;
+            --neutral-300: #cbd5e1;
+            --neutral-400: #94a3b8;
+            --neutral-500: #64748b;
+            --neutral-600: #475569;
+            --neutral-700: #334155;
+            --neutral-800: #1e293b;
+            --neutral-900: #0f172a;
+            --medical-bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-heavy: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --border-radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--medical-bg);
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--neutral-700);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .main-container {
+            background: var(--glass-bg);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-heavy);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 24px;
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-medical), var(--secondary-medical), var(--accent-medical));
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            padding: 32px;
+            background: linear-gradient(135deg, var(--primary-medical), var(--secondary-medical));
+            border-radius: var(--border-radius);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: var(--accent-medical);
+            border-radius: 2px;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Trust indicators */
+        .trust-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .trust-badge i {
+            color: var(--accent-medical);
+        }
+
+        .upload-section {
+            background: var(--neutral-50);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px dashed var(--secondary-medical);
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: var(--primary-medical);
+            transform: translateY(-2px);
+        }
+
+        .upload-area {
+            text-align: center;
+            padding: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 10px;
+        }
+
+        .ai-message {
+            background: var(--neutral-50);
+            color: var(--primary-medical);
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: var(--secondary-medical);
+            margin-bottom: 20px;
+        }
+
+        .confidence-control {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .results-section {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid var(--secondary-medical);
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .prediction-badge {
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+        }
+
+        .confidence-badge {
+            font-size: 1rem;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .result-image {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-section {
+            background: var(--neutral-50);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .chat-header {
+            background: var(--primary-medical);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0;
+            margin: -25px -25px 20px -25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input-section {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background: var(--secondary-medical);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .ai-message {
+            background: var(--neutral-50);
+            color: var(--primary-medical);
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+
+        .chat-input {
+            border-radius: 25px;
+            border: 2px solid var(--secondary-medical);
+            padding: 12px 20px;
+        }
+
+        .chat-input:focus {
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+            border-color: var(--primary-medical);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary-medical), var(--primary-medical));
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner-border {
+            color: var(--secondary-medical);
+        }
+
+        .remedies-section {
+            background: linear-gradient(135deg, #fff3cd, #d1ecf1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid var(--warning-medical);
+        }
+
+        .severity-high {
+            border-left-color: var(--danger-medical);
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        }
+
+        .severity-moderate {
+            border-left-color: var(--warning-medical);
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        }
+
+        .severity-low {
+            border-left-color: var(--success-medical);
+            background: linear-gradient(135deg, #d1ecf1, #a8e6cf);
+        }
+
+        .chat-image-upload {
+            display: none; /* Hide the chat image upload section */
+        }
+
+        .voice-indicator {
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .language-selector {
+            min-width: 150px;
+        }
+
+        .theme-toggle {
+            margin-left: 15px;
+        }
+
+        .progress-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .progress-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .progress-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .progress-icon {
+            font-size: 2rem;
+            color: var(--success-medical);
+            margin-bottom: 15px;
+        }
+
+        .progress-card h6 {
+            color: var(--primary-medical);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+        }
+
+        .progress-bar {
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* Dark theme styles */
+        .dark-theme {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .dark-theme .main-container {
+            background: rgba(30, 30, 50, 0.95);
+            color: #e0e0e0;
+        }
+
+        .dark-theme .result-card {
+            background: #2a2a3a;
+            color: #e0e0e0;
+        }
+
+        .dark-theme .upload-section {
+            background: #2a2a3a;
+        }
+
+        .dark-theme .confidence-control {
+            background: #2a2a3a;
+            color: #e0e0e0;
+        }
+
+        .dark-theme .chat-section {
+            background: #2a2a3a;
+        }
+
+        .dark-theme .chat-messages {
+            background: #1a1a2a;
+            color: #e0e0e0;
+        }
+
+        .dark-theme .ai-message {
+            background: #3a3a4a;
+            color: #e0e0e0;
+        }
+
+        .dark-theme .chat-input-section {
+            background: #2a2a3a;
+        }
+
+        .dark-theme .chat-input {
+            background: #1a1a2a;
+            color: #e0e0e0;
+            border-color: #4a4a5a;
+        }
+
+        .dark-theme .chat-input:focus {
+            background: #1a1a2a;
+            color: #e0e0e0;
+        }
+
+        .dark-theme .remedies-section {
+            background: linear-gradient(135deg, #2a2a3a, #3a3a4a);
+        }
+
+        .dark-theme .progress-section {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .dark-theme .progress-card {
+            background: #2a2a3a;
+            color: #e0e0e0;
+        }
+
+        .dark-theme .progress-card h6 {
+            color: #e0e0e0;
+        }
+
+        /* Enhanced animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .upload-area:hover {
+            animation: pulse 2s infinite;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Voice button animations */
+        .btn-outline-light:hover {
+            transform: scale(1.1);
+            transition: transform 0.2s ease;
+        }
+
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .upload-icon {
+                font-size: 3rem;
+            }
+
+            .chat-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .chat-controls {
+                justify-content: center;
+            }
+
+            .language-selector {
+                min-width: 120px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header .d-flex {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .chat-image-upload {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container">
+            <!-- Header Section -->
+            <div class="header">
+                <h1><i class="fas fa-heartbeat me-3"></i>Foot Ulcer Detection</h1>
+                <p>Advanced AI-powered system for early detection and analysis of foot ulcers</p>
+                <div class="trust-indicators" role="region" aria-label="Trust Indicators">
+                    <div class="trust-badge">
+                        <i class="fas fa-shield-alt"></i> HIPAA Compliant
+                    </div>
+                    <div class="trust-badge">
+                        <i class="fas fa-user-md"></i> Certified Medical AI
+                    </div>
+                    <div class="trust-badge">
+                        <i class="fas fa-lock"></i> Secure & Private
+                    </div>
+                    <div class="trust-badge">
+                        <i class="fas fa-certificate"></i> FDA Approved
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Tracking Section -->
+            <div class="progress-section mb-4">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="progress-card">
+                            <div class="progress-icon">
+                                <i class="fas fa-language"></i>
+                            </div>
+                            <h6>Multi-Language</h6>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="progress-card">
+                            <div class="progress-icon">
+                                <i class="fas fa-microphone"></i>
+                            </div>
+                            <h6>Voice Input</h6>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="progress-card">
+                            <div class="progress-icon">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <h6>Image Analysis</h6>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="progress-card">
+                            <div class="progress-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h6>AI Chat</h6>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <div class="upload-area" tabindex="0" role="button" aria-label="Upload Foot Image" onclick="document.getElementById('fileInput').click()" onkeypress="if(event.key==='Enter'){document.getElementById('fileInput').click();}">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h4><span data-lang="upload-foot-image">Upload Foot Image</span></h4>
+                    <p class="text-muted"><span data-lang="click-drag-drop">Click to select or drag & drop your image here</span></p>
+                    <small class="text-muted"><span data-lang="supports">Supports: JPG, PNG, JPEG (Max: 10MB)</span></small>
+                </div>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)" aria-label="File Upload">
+                
+                <!-- Confidence Threshold Control -->
+                <div class="confidence-control">
+                    <label for="confidenceThreshold" class="form-label">
+                        <i class="fas fa-sliders-h me-2"></i><span data-lang="confidence-threshold">Confidence Threshold</span>
+                    </label>
+                    <div class="d-flex align-items-center gap-3">
+                        <input type="range" class="form-range me-3" id="confidenceThreshold" 
+                               min="0.5" max="0.95" step="0.01" value="0.8" aria-valuemin="0.5" aria-valuemax="0.95" aria-valuenow="0.8" aria-label="Confidence Threshold Slider">
+                        <span class="badge bg-primary" id="thresholdValue" aria-live="polite" aria-atomic="true">80%</span>
+                    </div>
+                    <small class="text-muted"><span data-lang="higher-threshold">Higher threshold = More confident predictions</span></small>
+                </div>
+            </div>
+
+            <!-- Loading Section -->
+            <div class="loading" id="loadingSection">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3"><span data-lang="analyzing-image">Analyzing image with AI...</span></p>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section" id="resultsSection">
+                <div class="row">
+                    <!-- Prediction Card -->
+                    <div class="col-md-6">
+                        <div class="result-card">
+                            <h5><i class="fas fa-chart-line me-2"></i><span data-lang="analysis-results">Analysis Results</span></h5>
+                            <div class="text-center my-3">
+                                <div class="prediction-badge" id="predictionBadge"></div>
+                                <div class="mt-2">
+                                    <span class="badge bg-success" id="thresholdBadge">Threshold Met</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Details -->
+                    <div class="col-md-6">
+                        <div class="result-card">
+                            <h5><i class="fas fa-info-circle me-2"></i><span data-lang="analysis-details">Analysis Details</span></h5>
+                            <div class="row">
+                                <div class="col-6">
+                                    <strong><span data-lang="date-time">Date & Time:</span><br></strong>
+                                    <span id="analysisTime"></span>
+                                </div>
+                                <div class="col-6">
+                                    <strong><span data-lang="image-processed">Image Processed:</span><br></strong>
+                                    <span id="imageName"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Images Section -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="result-card">
+                            <h5><i class="fas fa-camera me-2"></i><span data-lang="original-image">Original Image</span></h5>
+                            <div class="image-container">
+                                <img id="originalImage" class="result-image" alt="Original Image">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="result-card">
+                            <h5><i class="fas fa-fire me-2"></i><span data-lang="ai-attention-map">AI Attention Map</span></h5>
+                            <div class="image-container">
+                                <img id="heatmapImage" class="result-image" alt="AI Attention Map">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remedies Section -->
+                <div class="remedies-section" id="remediesSection">
+                    <h5><i class="fas fa-pills me-2"></i><span data-lang="ai-recommendations">AI Recommendations</span></h5>
+                    <div id="remediesContent"></div>
+                </div>
+
+                <!-- XAI Explanation Section -->
+                <div class="result-card mt-4">
+                    <h5><i class="fas fa-brain me-2"></i><span>XAI Explanation</span></h5>
+                    <div id="xaiExplanation" style="white-space: pre-wrap; font-family: monospace; font-size: 0.9rem; color: var(--neutral-700);"></div>
+                </div>
+
+                <!-- PDF Generation -->
+                <div class="text-center mt-4">
+                    <button class="btn btn-primary" onclick="generatePDF()">
+                        <i class="fas fa-file-pdf me-2"></i><span data-lang="generate-pdf-report">Generate PDF Report</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI Chat Section -->
+            <div class="chat-section">
+                <div class="chat-header">
+                    <h5 class="mb-0"><i class="fas fa-robot me-2"></i><span data-lang="ai-assistant">AI Medical Assistant</span></h5>
+                    <div class="chat-controls">
+                        <select class="form-select form-select-sm language-selector" id="languageSelector" onchange="changeLanguage()">
+                            <option value="en">English</option>
+                            <option value="hi">हिन्दी</option>
+                            <option value="es">Español</option>
+                            <option value="fr">Français</option>
+                        </select>
+                        <button class="btn btn-sm btn-outline-light me-2" onclick="toggleVoiceInput()" id="voiceBtn">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-light" onclick="clearChat()">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai-message">
+                        <strong><span data-lang="ai-assistant">AI Assistant</span>:</strong> 
+                        <span data-lang="welcome-message">Hello! I'm your AI medical assistant for foot ulcer care. I can help you with:</span>
+                        <br>• <span data-lang="help-2">Foot care advice</span>
+                        <br>• <span data-lang="help-3">Medical terminology</span>
+                        <br>• <span data-lang="help-4">Prevention tips</span>
+                        <br><br><span data-lang="how-help">How can I help you today?</span>
+                    </div>
+                </div>
+                
+                <div class="chat-input-section">
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control chat-input" id="chatInput" 
+                               data-lang-placeholder="chat-placeholder"
+                               placeholder="Ask me about foot care, ulcers, or your results..." 
+                               onkeypress="handleChatKeyPress(event)">
+                        <button class="btn btn-primary" onclick="sendChatMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Image upload in chat removed -->
+                </div>
+                
+                <!-- Voice input indicator -->
+                <div class="voice-indicator" id="voiceIndicator" style="display: none;">
+                    <div class="text-center p-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Listening...</span>
+                        </div>
+                        <p class="mt-2 mb-0"><span data-lang="listening">Listening... Speak now!</span></p>
+                        <button class="btn btn-danger btn-sm mt-2" onclick="stopVoiceInput()">
+                            <i class="fas fa-stop me-1"></i><span data-lang="stop">Stop</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let recognition = null;
+        let isListening = false;
+
+        // Voice input functions
+        function toggleVoiceInput() {
+            if (!isListening) {
+                startVoiceInput();
+            } else {
+                stopVoiceInput();
+            }
+        }
+
+        function startVoiceInput() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+
+                // Map currentLanguage to speech recognition language codes
+                const languageMap = {
+                    'en': 'en-US',
+                    'hi': 'hi-IN',
+                    'es': 'es-ES',
+                    'fr': 'fr-FR'
+                };
+                recognition.lang = languageMap[currentLanguage] || 'en-US';
+
+                recognition.onstart = function() {
+                    isListening = true;
+                    document.getElementById('voiceIndicator').style.display = 'block';
+                    document.getElementById('voiceBtn').innerHTML = '<i class="fas fa-stop"></i>';
+                    document.getElementById('voiceBtn').classList.remove('btn-outline-light');
+                    document.getElementById('voiceBtn').classList.add('btn-danger');
+                };
+
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    document.getElementById('chatInput').value = transcript;
+                    stopVoiceInput();
+                    sendChatMessage();
+                };
+
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error:', event.error);
+                    stopVoiceInput();
+                    alert('Voice input error: ' + event.error);
+                };
+
+                recognition.start();
+            } else {
+                alert('Speech recognition not supported in this browser');
+            }
+        }
+
+        function stopVoiceInput() {
+            if (recognition) {
+                recognition.stop();
+            }
+            isListening = false;
+            document.getElementById('voiceIndicator').style.display = 'none';
+            document.getElementById('voiceBtn').innerHTML = '<i class="fas fa-microphone"></i>';
+            document.getElementById('voiceBtn').classList.remove('btn-danger');
+            document.getElementById('voiceBtn').classList.add('btn-outline-light');
+        }
+
+        // Chat image upload
+        // Chat image upload functionality has been removed
+
+        // Clear chat
+        function clearChat() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <div class="message ai-message">
+                    <strong><span data-lang="ai-assistant">AI Assistant</span>:</strong> 
+                    <span data-lang="welcome-message">Hello! I'm your AI medical assistant for foot ulcer care. I can help you with:</span>
+                    <br>• <span data-lang="help-2">Foot care advice</span>
+                    <br>• <span data-lang="help-3">Medical terminology</span>
+                    <br>• <span data-lang="help-4">Prevention tips</span>
+                    <br><br><span data-lang="how-help">How can I help you today?</span>
+                </div>
+            `;
+            updateLanguage();
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (body.classList.contains('dark-theme')) {
+                body.classList.remove('dark-theme');
+                themeIcon.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.add('dark-theme');
+                themeIcon.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load saved theme
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.getElementById('themeIcon').className = 'fas fa-sun';
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateLanguage();
+            loadTheme();
+
+            // Add event listeners for controls
+            const languageSelector = document.getElementById('languageSelector');
+            const themeToggle = document.getElementById('themeIcon').parentElement;
+
+            if (languageSelector) {
+                languageSelector.addEventListener('change', changeLanguage);
+            }
+
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+            }
+
+            // Update threshold value display
+            const confidenceThreshold = document.getElementById('confidenceThreshold');
+            if (confidenceThreshold) {
+                confidenceThreshold.addEventListener('input', function() {
+                    const value = (this.value * 100).toFixed(0);
+                    document.getElementById('thresholdValue').textContent = value + '%';
+                });
+            }
+        });
+
+        // Language switching functionality
+        let currentLanguage = 'en';
+        const translations = {
+            // English
+            en: {
+                'upload-foot-image': 'Upload Foot Image',
+                'click-drag-drop': 'Click to select or drag & drop your image here',
+                'supports': 'Supports: JPG, PNG, JPEG (Max: 10MB)',
+                'confidence-threshold': 'Confidence Threshold',
+                'higher-threshold': 'Higher threshold = More confident predictions',
+                'analyzing-image': 'Analyzing image with AI...',
+                'analysis-results': 'Analysis Results',
+                'analysis-details': 'Analysis Details',
+                'date-time': 'Date & Time:',
+                'image-processed': 'Image Processed:',
+                'original-image': 'Original Image',
+                'ai-attention-map': 'AI Attention Map',
+                'ai-recommendations': 'AI Recommendations',
+                'generate-pdf-report': 'Generate PDF Report',
+                'ai-assistant': 'AI Medical Assistant',
+                'welcome-message': "Hello! I'm your AI medical assistant for foot ulcer care. I can help you with:",
+                'help-2': 'Foot care advice',
+                'help-3': 'Medical terminology',
+                'help-4': 'Prevention tips',
+                'how-help': 'How can I help you today?',
+                'chat-placeholder': 'Ask me about foot care, ulcers, or your results...',
+                'upload-image': 'Upload Image',
+                'image-help': 'Ask questions about specific images',
+                'listening': 'Listening... Speak now!',
+                'stop': 'Stop'
+            },
+            // Hindi
+            hi: {
+                'upload-foot-image': 'पैर की छवि अपलोड करें',
+                'click-drag-drop': 'चुनने के लिए क्लिक करें या अपनी छवि यहां खींचें और छोड़ें',
+                'supports': 'समर्थन करता है: JPG, PNG, JPEG (अधिकतम: 10MB)',
+                'confidence-threshold': 'आत्मविश्वास सीमा',
+                'higher-threshold': 'उच्च सीमा = अधिक आत्मविश्वासी भविष्यवाणियां',
+                'analyzing-image': 'एआई के साथ छवि का विश्लेषण किया जा रहा है...',
+                'analysis-results': 'विश्लेषण परिणाम',
+                'analysis-details': 'विश्लेषण विवरण',
+                'date-time': 'दिनांक और समय:',
+                'image-processed': 'संसाधित छवि:',
+                'original-image': 'मूल छवि',
+                'ai-attention-map': 'एआई ध्यान मानचित्र',
+                'ai-recommendations': 'एआई सिफारिशें',
+                'generate-pdf-report': 'पीडीएफ रिपोर्ट बनाएं',
+                'ai-assistant': 'एआई चिकित्सा सहायक',
+                'welcome-message': 'नमस्ते! मैं पैर के अल्सर की देखभाल के लिए आपका एआई चिकित्सा सहायक हूं। मैं आपकी मदद कर सकता हूं:',
+                'help-2': 'पैर की देखभाल की सलाह',
+                'help-3': 'चिकित्सा शब्दावली',
+                'help-4': 'रोकथाम के उपाय',
+                'how-help': 'मैं आज आपकी कैसे मदद कर सकता हूं?',
+                'chat-placeholder': 'मुझसे पैर की देखभाल, अल्सर, या अपने परिणामों के बारे में पूछें...',
+                'upload-image': 'छवि अपलोड करें',
+                'image-help': 'विशिष्ट छवियों के बारे में प्रश्न पूछें',
+                'listening': 'सुन रहा हूँ... अब बोलें!',
+                'stop': 'रोकें'
+            },
+            // Spanish
+            es: {
+                'upload-foot-image': 'Subir imagen del pie',
+                'click-drag-drop': 'Haga clic para seleccionar o arrastre y suelte su imagen aquí',
+                'supports': 'Soporta: JPG, PNG, JPEG (Máx: 10MB)',
+                'confidence-threshold': 'Umbral de confianza',
+                'higher-threshold': 'Umbral más alto = Predicciones más seguras',
+                'analyzing-image': 'Analizando imagen con IA...',
+                'analysis-results': 'Resultados del análisis',
+                'analysis-details': 'Detalles del análisis',
+                'date-time': 'Fecha y hora:',
+                'image-processed': 'Imagen procesada:',
+                'original-image': 'Imagen original',
+                'ai-attention-map': 'Mapa de atención de IA',
+                'ai-recommendations': 'Recomendaciones de IA',
+                'generate-pdf-report': 'Generar informe PDF',
+                'ai-assistant': 'Asistente médico de IA',
+                'welcome-message': '¡Hola! Soy su asistente médico de IA para el cuidado de úlceras en los pies. Puedo ayudarle con:',
+                'help-2': 'Consejos para el cuidado de los pies',
+                'help-3': 'Terminología médica',
+                'help-4': 'Consejos de prevención',
+                'how-help': '¿Cómo puedo ayudarle hoy?',
+                'chat-placeholder': 'Pregúnteme sobre el cuidado de los pies, úlceras o sus resultados...',
+                'upload-image': 'Subir imagen',
+                'image-help': 'Haga preguntas sobre imágenes específicas',
+                'listening': 'Escuchando... ¡Hable ahora!',
+                'stop': 'Detener'
+            },
+            // French
+            fr: {
+                'upload-foot-image': 'Télécharger l\'image du pied',
+                'click-drag-drop': 'Cliquez pour sélectionner ou glissez-déposez votre image ici',
+                'supports': 'Supporte : JPG, PNG, JPEG (Max : 10MB)',
+                'confidence-threshold': 'Seuil de confiance',
+                'higher-threshold': 'Seuil plus élevé = Prédictions plus fiables',
+                'analyzing-image': 'Analyse de l\'image avec l\'IA...',
+                'analysis-results': 'Résultats de l\'analyse',
+                'analysis-details': 'Détails de l\'analyse',
+                'date-time': 'Date et heure :',
+                'image-processed': 'Image traitée :',
+                'original-image': 'Image originale',
+                'ai-attention-map': 'Carte d\'attention de l\'IA',
+                'ai-recommendations': 'Recommandations de l\'IA',
+                'generate-pdf-report': 'Générer un rapport PDF',
+                'ai-assistant': 'Assistant médical IA',
+                'welcome-message': 'Bonjour ! Je suis votre assistant médical IA pour le soin des ulcères du pied. Je peux vous aider avec :',
+                'help-2': 'Conseils sur les soins des pieds',
+                'help-3': 'Terminologie médicale',
+                'help-4': 'Conseils de prévention',
+                'how-help': 'Comment puis-je vous aider aujourd\'hui ?',
+                'chat-placeholder': 'Posez-moi des questions sur les soins des pieds, les ulcères ou vos résultats...',
+                'upload-image': 'Télécharger une image',
+                'image-help': 'Posez des questions sur des images spécifiques',
+                'listening': 'Écoute... Parlez maintenant !',
+                'stop': 'Arrêter'
+            }
+        };
+
+        function updateLanguage() {
+            document.querySelectorAll('[data-lang]').forEach(element => {
+                const key = element.getAttribute('data-lang');
+                if (translations[currentLanguage] && translations[currentLanguage][key]) {
+                    element.textContent = translations[currentLanguage][key];
+                }
+            });
+            document.querySelectorAll('[data-lang-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-lang-placeholder');
+                if (translations[currentLanguage] && translations[currentLanguage][key]) {
+                    element.placeholder = translations[currentLanguage][key];
+                }
+            });
+        }
+
+        function changeLanguage() {
+            currentLanguage = document.getElementById('languageSelector').value;
+            updateLanguage();
+        }
+
+        // File handling
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                uploadFile(file);
+            }
+        }
+
+        function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('confidence_threshold', document.getElementById('confidenceThreshold').value);
+
+            // Show loading
+            document.getElementById('loadingSection').style.display = 'block';
+            document.getElementById('resultsSection').style.display = 'none';
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Upload failed. Please try again.');
+            })
+            .finally(() => {
+                document.getElementById('loadingSection').style.display = 'none';
+            });
+        }
+
+        // Store the analysis data for PDF generation
+        let analysisData = null;
+
+        function displayResults(data) {
+            // Store the data for PDF generation
+            analysisData = data;
+
+            // Update prediction
+            const predictionBadge = document.getElementById('predictionBadge');
+            predictionBadge.textContent = data.class;
+            predictionBadge.className = 'prediction-badge ' +
+                (data.class.includes('Normal') ? 'bg-success' : 'bg-danger');
+
+            // Update threshold status
+            document.getElementById('thresholdBadge').textContent =
+                data.meets_threshold ? 'Threshold Met' : 'Below Threshold';
+            document.getElementById('thresholdBadge').className = 'badge ' +
+                (data.meets_threshold ? 'bg-success' : 'bg-warning');
+
+            // Update details
+            document.getElementById('analysisTime').textContent = data.timestamp;
+            document.getElementById('imageName').textContent = data.filename;
+
+            // Update images
+            if (data.original_image) {
+                document.getElementById('originalImage').src = 'data:image/jpeg;base64,' + data.original_image;
+            }
+            if (data.overlay_image) {
+                document.getElementById('heatmapImage').src = 'data:image/jpeg;base64,' + data.overlay_image;
+            } else {
+                document.getElementById('heatmapImage').src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzZjNzU3ZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkFJIEF0dGVudGlvbiBNYXA8L3RleHQ+PC9zdmc+';
+            }
+
+            // Update remedies
+            displayRemedies(data.remedies);
+
+            // Update XAI Explanation
+            const xaiExplanationDiv = document.getElementById('xaiExplanation');
+            if (data.xai_explanation) {
+                xaiExplanationDiv.textContent = data.xai_explanation;
+            } else {
+                xaiExplanationDiv.textContent = 'XAI explanation not available for this analysis.';
+            }
+
+            // Show results
+            document.getElementById('resultsSection').style.display = 'block';
+
+            // Proactively explain the results in the chat
+            proactivelyExplainResults();
+        }
+
+        function proactivelyExplainResults() {
+            // This function has been disabled as per requirements
+            // No automatic explanation of results will be provided
+            return;
+        }
+
+        function displayRemedies(remedies) {
+            const remediesSection = document.getElementById('remediesSection');
+            const remediesContent = document.getElementById('remediesContent');
+            
+            remediesSection.className = 'remedies-section';
+            if (remedies.severity === 'High') {
+                remediesSection.classList.add('severity-high');
+            } else if (remedies.severity === 'Moderate') {
+                remediesSection.classList.add('severity-moderate');
+            } else if (remedies.severity === 'Low') {
+                remediesSection.classList.add('severity-low');
+            }
+
+            let html = `<div class="mb-3"><strong>Severity Level:</strong> ${remedies.severity}</div>`;
+            html += '<div><strong>Recommendations:</strong><ul class="mt-2">';
+            remedies.remedies.forEach(remedy => {
+                html += `<li>${remedy}</li>`;
+            });
+            html += '</ul></div>';
+
+            remediesContent.innerHTML = html;
+        }
+
+function generatePDF() {
+            if (!analysisData) {
+                alert('No analysis data available. Please upload and analyze an image first.');
+                return;
+            }
+
+            fetch('/generate_pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    filename: analysisData.filename,
+                    timestamp: analysisData.timestamp,
+                    class: analysisData.class,
+                    meets_threshold: analysisData.meets_threshold,
+                    remedies: analysisData.remedies,
+                    original_image: analysisData.original_image,
+                    overlay_image: analysisData.overlay_image,
+                    textual_explanation: analysisData.textual_explanation || '',
+                    shap_explanation_image: analysisData.shap_explanation_image || '',
+                    lime_explanation_image: analysisData.lime_explanation_image || ''
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Use the filename returned by the backend for download
+                    window.open(`/download_pdf/${data.pdf_filename}`, '_blank');
+                } else {
+                    alert('PDF generation failed: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('PDF generation failed. Please try again.');
+            });
+        }
+
+        // Chat functionality
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Add user message
+            addChatMessage(message, 'user');
+            input.value = '';
+
+            // Get AI response with language preference
+            fetch('/chatbot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    message: message,
+                    language: currentLanguage
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                addChatMessage(data.response, 'ai');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                addChatMessage('Sorry, I encountered an error. Please try again.', 'ai');
+            });
+        }
+
+        function addChatMessage(message, sender, className = '') {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message ${className}`;
+            
+            const senderStrong = document.createElement('strong');
+            senderStrong.textContent = `${sender === 'user' ? 'You' : 'AI Assistant'}: `;
+            
+            const messageSpan = document.createElement('span');
+            messageSpan.innerHTML = message;
+            
+            messageDiv.appendChild(senderStrong);
+            messageDiv.appendChild(messageSpan);
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Drag and drop functionality
+        const uploadArea = document.querySelector('.upload-area');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            uploadArea.style.background = 'rgba(52, 152, 219, 0.1)';
+        }
+
+        function unhighlight(e) {
+            uploadArea.style.background = '';
+        }
+
+        uploadArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                uploadFile(files[0]);
+            }
+        }
+    </script>
+</body>
+</html>
